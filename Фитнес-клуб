@@ -1,0 +1,143 @@
+using System;
+using System.Collections.Generic;
+
+namespace ООП_финтес_клуб
+{
+    // Абстрактный класс для всех агрегатов
+    public abstract class Aggregate
+    {
+        public Guid Id { get; protected set; }
+
+        public Aggregate()
+        {
+            Id = Guid.NewGuid();
+        }
+    }
+
+    // Классы для агрегата "Абонемент"
+    public class Abonement : Aggregate
+    {
+        public List<Poseshenie> Posesheniya { get; set; } = new List<Poseshenie>();
+        public TipAbonementa TipAbonementa { get; set; }
+        public StatusAbonementa Status { get; set; }
+
+        public Abonement(TipAbonementa tip)
+        {
+            TipAbonementa = tip;
+            Status = StatusAbonementa.Active; // Начальный статус
+        }
+
+        public bool IsValid()
+        {
+            // Дополнительные проверки, например, срок действия абонемента
+            return Status == StatusAbonementa.Active && TipAbonementa != null;
+        }
+    }
+
+    public enum StatusAbonementa { Active, Inactive, Expired }
+
+    public class TipAbonementa
+    {
+        public string Name { get; set; }
+        public int Price { get; set; }
+
+        public TipAbonementa(string name, int price)
+        {
+            Name = name;
+            Price = price;
+        }
+    }
+
+    public class Poseshenie
+    {
+        public DateTime Date { get; set; }
+        public Abonement Abonement { get; set; }
+
+        public Poseshenie(DateTime date, Abonement abonement)
+        {
+            Date = date;
+            Abonement = abonement;
+        }
+    }
+
+    // Классы для агрегата "Клиент"
+    public class Klient : Aggregate
+    {
+        public string FIO { get; set; }
+        public string KontactnieDannye { get; set; }
+        public List<ZapisNaZanyatie> ZapisNaZanyatiya { get; set; } = new List<ZapisNaZanyatie>();
+
+        public Klient(string fio, string dannye)
+        {
+            FIO = fio;
+            KontactnieDannye = dannye;
+        }
+    }
+
+    public class ZapisNaZanyatie
+    {
+        public Klient Klient { get; set; }
+        public Zanyatie Zanyatie { get; set; }
+
+        public ZapisNaZanyatie(Klient klient, Zanyatie zanyatie)
+        {
+            Klient = klient;
+            Zanyatie = zanyatie;
+        }
+    }
+
+    // Классы для агрегата "Тренер"
+    public class Trener : Aggregate
+    {
+        public string FIO { get; set; }
+        public string Kvalifikatsiya { get; set; }
+        public string RaspisanieTrenirovok { get; set; }
+
+        public Trener(string fio, string kval)
+        {
+            FIO = fio;
+            Kvalifikatsiya = kval;
+        }
+    }
+
+    // Классы для агрегата "Расписание"
+    public class Raspisanie : Aggregate
+    {
+        public List<Zanyatie> Zanyatiya { get; set; } = new List<Zanyatie>();
+    }
+
+    public class Zanyatie
+    {
+        public double Prodolzhitelnost { get; set; }
+        public string TipZanyatiya { get; set; }
+        public DateTime VremyaNachala { get; set; }
+        public Raspisanie Raspisanie { get; set; }
+
+        public Zanyatie(double prodolzhitelnost, string tip, DateTime vremya, Raspisanie raspisanie)
+        {
+            Prodolzhitelnost = prodolzhitelnost;
+            TipZanyatiya = tip;
+            VremyaNachala = vremya;
+            Raspisanie = raspisanie;
+        }
+    }
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            // Пример использования
+            TipAbonementa tip = new TipAbonementa("Безлимитный", 5000);
+            Abonement abonement = new Abonement(tip);
+
+            Klient klient = new Klient("Иванов И.И.", "ivanov@example.com");
+
+            Raspisanie raspisanie = new Raspisanie();
+            Zanyatie zanyatie = new Zanyatie(1.5, "Йога", DateTime.Now, raspisanie);
+
+            ZapisNaZanyatie zapis = new ZapisNaZanyatie(klient, zanyatie);
+
+            Console.WriteLine($"Клиент {klient.FIO} записался на занятие {zanyatie.TipZanyatiya}");
+            Console.ReadKey();
+        }
+    }
+}
